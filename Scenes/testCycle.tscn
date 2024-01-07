@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://duavhnl7yo28"]
+
+[ext_resource type="Script" path="res://Scripts/GlobalEnvironment/cycleDayNight.gd" id="1_me0ib"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_me0ib")
