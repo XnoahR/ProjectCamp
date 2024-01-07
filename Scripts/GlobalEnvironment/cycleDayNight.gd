@@ -2,14 +2,18 @@ extends Node
 
 var isDay     = true
 var cycle     = 24/self.getCycle()
-var dayLength = self.getTime()
+var dayLength = self.getTime() * cycle
+
+func _ready():
+	updateTime(isDay)
 
 func _process(delta):
 	dayLength -= delta
-
+	
 	if dayLength <= 0:
 		isDay     = !isDay
-		dayLength = cycle
+		dayLength = self.getTime() * cycle
+		print(dayLength)
 
 		updateTime(isDay)
 
