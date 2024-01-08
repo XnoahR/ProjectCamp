@@ -1,0 +1,63 @@
+[gd_scene load_steps=11 format=3 uid="uid://cwu4llnv0p4no"]
+
+[ext_resource type="Texture2D" uid="uid://d2y00xulu5gyb" path="res://Assets/GridBox/Vector/texture_01.svg" id="1_i3w3b"]
+[ext_resource type="PackedScene" uid="uid://bs8ft2tcue3ok" path="res://Scenes/ray_folder/player1.tscn" id="2_7m0pl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oaro5"]
+albedo_texture = ExtResource("1_i3w3b")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lryb8"]
+albedo_texture = ExtResource("1_i3w3b")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_bpg3y"]
+material = SubResource("StandardMaterial3D_lryb8")
+size = Vector2(75, 75)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ge8u1"]
+size = Vector3(75, 0.1, 75)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5sjgd"]
+backlight_enabled = true
+backlight = Color(0.321569, 0.580392, 0.843137, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_oflwx"]
+material = SubResource("StandardMaterial3D_5sjgd")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_twgl0"]
+backlight_enabled = true
+backlight = Color(0.713726, 0.466667, 0.937255, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_63mhu"]
+material = SubResource("StandardMaterial3D_twgl0")
+
+[node name="Life and Hunger" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+material_override = SubResource("StandardMaterial3D_oaro5")
+mesh = SubResource("PlaneMesh_bpg3y")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("BoxShape3D_ge8u1")
+
+[node name="Player" parent="." instance=ExtResource("2_7m0pl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.57423, 0.0500002, 1.09783)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.962443, 0.0660377, 0.263329, -0.178259, 0.885297, 0.429503, -0.204761, -0.460313, 0.86382, 0, 4.83971, 8.47395)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.93323, 8.61773)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.37079, 4.42748)
+mesh = SubResource("BoxMesh_oflwx")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.62892, 15.7653)
+mesh = SubResource("SphereMesh_63mhu")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2136, 4.62892, 15.7653)
+mesh = SubResource("SphereMesh_63mhu")
