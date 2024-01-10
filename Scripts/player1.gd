@@ -3,7 +3,10 @@ extends CharacterBody3D
 var movement := Vector3(0,0,0)
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var verticalMovement = 0;
-var MAX_STAMINA := 50.0
+var tbob = 0.0
+const MAX_STAMINA := 50.0
+const BOB_FREQ  = 2.0
+const BOB_AMP = 0.08
 
 signal stamina_bar(value)
 signal player_life(health, hunger, thirst)
@@ -20,7 +23,7 @@ signal player_life(health, hunger, thirst)
 @onready var isCrouch := false
 @onready var isSprint := false
 @onready var isExhausted := false
-@onready var cam = $Camera3D
+@onready var cam = $head/Camera3D
 
 func _ready():
 	Input.mouse_mode =Input.MOUSE_MODE_CAPTURED
@@ -36,7 +39,7 @@ func _unhandled_input(event):
 func _process(delta):
 	emit_signal("stamina_bar",stamina)
 	emit_signal("player_life",health,hunger,thirst)
-	PlayerMaster._hunger_and_thirst_system(delta)
+	PlayerMaster._hunger_and_thirst_system(delta, isSprint)
 	_check_life_status()
 
 func _physics_process(delta):
@@ -62,7 +65,9 @@ func _physics_process(delta):
 	velocity.y = verticalMovement
 	#print(stamina)
 	#print(velocity)
-	
+	tbob += delta*velocity.length()*float(is_on_floor())
+	print(tbob)
+	#cam.transform.origin = _headbob(tbob)
 	#Animation and Moving
 	_animation()
 	move_and_slide()
@@ -93,13 +98,16 @@ func _sprint(delta): #Sprint default hanya nambah speed
 	if Input.is_action_pressed("sprint") and stamina > 0 and !isCrouch:
 		speed = 10
 		stamina -= 20*delta
+		isSprint = true
 		if(stamina <= 0) :
 			isExhausted = true
+			isSprint = false
 			#wait 3 sec, then isExhausted = false
 			_start_exhausted_cooldown()
 			pass
 		
 	else:
+		isSprint = false
 		if(stamina < MAX_STAMINA) and !isExhausted:
 			stamina += 10*delta
 		if(stamina > MAX_STAMINA):
@@ -132,8 +140,11 @@ func _start_exhausted_cooldown() -> void:
 
 func _check_life_status():
 	health = PlayerMaster.healthValue
-	print(health)
 	hunger = PlayerMaster.hungerValue
-	print(hunger)
 	thirst = PlayerMaster.thirstValue
 	print(thirst)
+
+func _headbob(time) -> Vector3:
+	var pos = Vector3.ZERO
+	pos.y = sin(time*BOB_FREQ) * BOB_AMP
+	return pos
