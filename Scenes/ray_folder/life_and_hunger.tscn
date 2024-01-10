@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cwu4llnv0p4no"]
+[gd_scene load_steps=21 format=3 uid="uid://cwu4llnv0p4no"]
 
 [ext_resource type="Texture2D" uid="uid://d2y00xulu5gyb" path="res://Assets/GridBox/Vector/texture_01.svg" id="1_i3w3b"]
 [ext_resource type="PackedScene" uid="uid://bs8ft2tcue3ok" path="res://Scenes/ray_folder/player1.tscn" id="2_7m0pl"]
@@ -37,6 +37,24 @@ material = SubResource("StandardMaterial3D_5sjgd")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chmlc"]
 bg_color = Color(0.529412, 0.580392, 0.847059, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6f3cq"]
+bg_color = Color(0.905882, 0.454902, 0.219608, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3otrq"]
+bg_color = Color(0.615686, 0.258824, 0.184314, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aw5sh"]
+bg_color = Color(0.552941, 0.627451, 0.517647, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jg2md"]
+bg_color = Color(0.247059, 0.509804, 0.305882, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nxthm"]
+bg_color = Color(0.937255, 0.356863, 0.396078, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b0cga"]
+bg_color = Color(0.780392, 0.192157, 0.203922, 1)
 
 [node name="Life and Hunger" type="Node3D"]
 
@@ -91,16 +109,48 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -193.0
+offset_left = 810.0
+offset_top = -103.0
+offset_right = 955.0
+offset_bottom = -53.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Lorem Ipsum :"
+vertical_alignment = 1
+
+[node name="hungerInfo" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -197.0
 offset_top = -30.0
-offset_right = 178.0
+offset_right = 174.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Lorem Ipsum :"
 vertical_alignment = 1
 
-[node name="Stamina" type="Label" parent="CanvasLayer/Panel"]
+[node name="thirstInfo" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -198.0
+offset_top = -95.0
+offset_right = 173.0
+offset_bottom = -45.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Lorem Ipsum :"
+vertical_alignment = 1
+
+[node name="staminaInfo" type="Label" parent="CanvasLayer/Panel"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -131,4 +181,47 @@ max_value = 50.0
 value = 50.0
 rounded = true
 
+[node name="hungerBar" type="ProgressBar" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_right = 1.003
+anchor_bottom = 0.502
+offset_left = -2.0
+offset_top = 10.0
+offset_right = -2.18802
+offset_bottom = 36.588
+grow_vertical = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_6f3cq")
+theme_override_styles/fill = SubResource("StyleBoxFlat_3otrq")
+value = 50.0
+
+[node name="thirstBar" type="ProgressBar" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_right = 1.003
+anchor_bottom = 0.502
+offset_left = -1.0
+offset_top = -51.0
+offset_right = -1.18802
+offset_bottom = -24.412
+grow_vertical = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_aw5sh")
+theme_override_styles/fill = SubResource("StyleBoxFlat_jg2md")
+max_value = 120.0
+value = 50.0
+
+[node name="healthBar" type="ProgressBar" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 410.0
+offset_top = 3.0
+offset_right = 444.0
+offset_bottom = 208.0
+theme_override_styles/background = SubResource("StyleBoxFlat_nxthm")
+theme_override_styles/fill = SubResource("StyleBoxFlat_b0cga")
+value = 56.68
+fill_mode = 3
+
+[connection signal="player_life" from="Player" to="CanvasLayer/Panel" method="_on_player_player_life"]
 [connection signal="stamina_bar" from="Player" to="CanvasLayer/Panel" method="_on_player_stamina_bar"]

@@ -6,12 +6,16 @@ var verticalMovement = 0;
 var MAX_STAMINA := 50.0
 
 signal stamina_bar(value)
+signal player_life(health, hunger, thirst)
 
 @export var mouseSensitivity := 0.1
 @export var speed := 5.0
 @export var jumpForce := 5.0
 @export var stamina := 50.0
 
+@onready var health : float = PlayerMaster.healthValue
+@onready var hunger : float = PlayerMaster.hungerValue
+@onready var thirst : float = PlayerMaster.thirstValue
 @onready var canMove := true
 @onready var isCrouch := false
 @onready var isSprint := false
@@ -31,6 +35,9 @@ func _unhandled_input(event):
 
 func _process(delta):
 	emit_signal("stamina_bar",stamina)
+	emit_signal("player_life",health,hunger,thirst)
+	PlayerMaster._hunger_and_thirst_system(delta)
+	_check_life_status()
 
 func _physics_process(delta):
 	#Movement Input
@@ -53,7 +60,7 @@ func _physics_process(delta):
 	
 	#Read Velocity
 	velocity.y = verticalMovement
-	print(stamina)
+	#print(stamina)
 	#print(velocity)
 	
 	#Animation and Moving
@@ -120,5 +127,13 @@ func _default_speed(): #Set default speed
 func _start_exhausted_cooldown() -> void:
 	await get_tree().create_timer(3.0).timeout
 	isExhausted = false
-	print("Dah")
+	#print("Dah")
 	pass
+
+func _check_life_status():
+	health = PlayerMaster.healthValue
+	print(health)
+	hunger = PlayerMaster.hungerValue
+	print(hunger)
+	thirst = PlayerMaster.thirstValue
+	print(thirst)
