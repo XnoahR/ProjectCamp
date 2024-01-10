@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cm3iyfhixosns"]
+
+[ext_resource type="Script" path="res://garbage/hujanProbability.gd" id="1_84ytg"]
+
+[node name="TestCuaca" type="Node3D"]
+script = ExtResource("1_84ytg")
