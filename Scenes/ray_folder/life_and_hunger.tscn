@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cwu4llnv0p4no"]
+[gd_scene load_steps=13 format=3 uid="uid://cwu4llnv0p4no"]
 
 [ext_resource type="Texture2D" uid="uid://d2y00xulu5gyb" path="res://Assets/GridBox/Vector/texture_01.svg" id="1_i3w3b"]
 [ext_resource type="PackedScene" uid="uid://bs8ft2tcue3ok" path="res://Scenes/ray_folder/player1.tscn" id="2_7m0pl"]
@@ -16,6 +16,13 @@ size = Vector2(75, 75)
 [sub_resource type="BoxShape3D" id="BoxShape3D_ge8u1"]
 size = Vector3(75, 0.1, 75)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_twgl0"]
+backlight_enabled = true
+backlight = Color(0.713726, 0.466667, 0.937255, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_63mhu"]
+material = SubResource("StandardMaterial3D_twgl0")
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5sjgd"]
 backlight_enabled = true
 backlight = Color(0.321569, 0.580392, 0.843137, 1)
@@ -23,12 +30,9 @@ backlight = Color(0.321569, 0.580392, 0.843137, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_oflwx"]
 material = SubResource("StandardMaterial3D_5sjgd")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_twgl0"]
-backlight_enabled = true
-backlight = Color(0.713726, 0.466667, 0.937255, 1)
+[sub_resource type="BoxShape3D" id="BoxShape3D_4argc"]
 
-[sub_resource type="SphereMesh" id="SphereMesh_63mhu"]
-material = SubResource("StandardMaterial3D_twgl0")
+[sub_resource type="LabelSettings" id="LabelSettings_3w0yy"]
 
 [node name="Life and Hunger" type="Node3D"]
 
@@ -50,10 +54,6 @@ transform = Transform3D(0.962443, 0.0660377, 0.263329, -0.178259, 0.885297, 0.42
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.93323, 8.61773)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.37079, 4.42748)
-mesh = SubResource("BoxMesh_oflwx")
-
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.62892, 15.7653)
 mesh = SubResource("SphereMesh_63mhu")
@@ -61,3 +61,53 @@ mesh = SubResource("SphereMesh_63mhu")
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2136, 4.62892, 15.7653)
 mesh = SubResource("SphereMesh_63mhu")
+
+[node name="StaticBody3D2" type="StaticBody3D" parent="."]
+transform = Transform3D(7.89197, 0, 0, 0, 1, 0, 0, 0, 3.60382, 4.9442, 1.7, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D2"]
+mesh = SubResource("BoxMesh_oflwx")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2"]
+shape = SubResource("BoxShape3D_4argc")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+offset_left = 1.0
+offset_right = 397.0
+offset_bottom = 206.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -25.0
+offset_right = 181.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Lorem Ipsum :"
+vertical_alignment = 1
+
+[node name="Label2" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -87.0
+offset_right = 181.0
+offset_bottom = -37.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Lorem Ipsum :"
+label_settings = SubResource("LabelSettings_3w0yy")
+vertical_alignment = 1
