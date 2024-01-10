@@ -7,7 +7,9 @@ var defaultValueCloud := 40
 var numberGen : int 
 var weather : String
 var weatherTime : Array = ["A","B","C"]
+var interval := 3.0 #Time between morning, day, night
 
+signal weather_picked
 signal weather_cycled
 
 @onready var valueRain := 10
@@ -16,7 +18,9 @@ signal weather_cycled
 @onready var rainParticle := $RainParticles
 
 func _ready():
-	pass
+	connect("weather_picked", self._weather_cycle)
+	connect("weather_cycled", self._weather_system)
+	_weather_system()
 	
 func _process(delta):
 	#if(Input.is_action_just_pressed("crouch")):
@@ -48,5 +52,35 @@ func _weather_system():
 		#print(numberGen)
 		
 	print(weatherTime)
+	emit_signal("weather_picked")
+	pass
+
+func _weather_cycle():
+	for i in range(weatherTime.size()):
+		weather = weatherTime[i]
+		_decide_weather(weather)
+		print(weather)
+		await get_tree().create_timer(interval).timeout
+		print("Waiting done.")
+	
+	print("weather cycled.")
 	emit_signal("weather_cycled")
+
+func _decide_weather(weatherName : String):
+	rainParticle.emitting = (weatherName == "Rainy")
+	match weatherName:
+		"Rainy":
+			_rainy()
+		"Sunny":
+			_sunny()
+		"Cloudy":
+			_cloudy()
+
+func _rainy():
+	pass
+
+func _cloudy():
+	pass
+	
+func _sunny():
 	pass
