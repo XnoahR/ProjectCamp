@@ -1,7 +1,8 @@
-[gd_scene load_steps=13 format=3 uid="uid://cwu4llnv0p4no"]
+[gd_scene load_steps=15 format=3 uid="uid://cwu4llnv0p4no"]
 
 [ext_resource type="Texture2D" uid="uid://d2y00xulu5gyb" path="res://Assets/GridBox/Vector/texture_01.svg" id="1_i3w3b"]
 [ext_resource type="PackedScene" uid="uid://bs8ft2tcue3ok" path="res://Scenes/ray_folder/player1.tscn" id="2_7m0pl"]
+[ext_resource type="Script" path="res://Scenes/ray_folder/ui.gd" id="3_txt7d"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oaro5"]
 albedo_texture = ExtResource("1_i3w3b")
@@ -33,6 +34,9 @@ material = SubResource("StandardMaterial3D_5sjgd")
 [sub_resource type="BoxShape3D" id="BoxShape3D_4argc"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_3w0yy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chmlc"]
+bg_color = Color(0.529412, 0.580392, 0.847059, 1)
 
 [node name="Life and Hunger" type="Node3D"]
 
@@ -78,36 +82,53 @@ shape = SubResource("BoxShape3D_4argc")
 offset_left = 1.0
 offset_right = 397.0
 offset_bottom = 206.0
+script = ExtResource("3_txt7d")
 
-[node name="Label" type="Label" parent="CanvasLayer/Panel"]
+[node name="fps" type="Label" parent="CanvasLayer/Panel"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -190.0
-offset_top = -25.0
-offset_right = 181.0
-offset_bottom = 25.0
+offset_left = -193.0
+offset_top = -30.0
+offset_right = 178.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Lorem Ipsum :"
 vertical_alignment = 1
 
-[node name="Label2" type="Label" parent="CanvasLayer/Panel"]
+[node name="Stamina" type="Label" parent="CanvasLayer/Panel"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -190.0
-offset_top = -87.0
-offset_right = 181.0
-offset_bottom = -37.0
+offset_left = -193.0
+offset_top = 23.0
+offset_right = 178.0
+offset_bottom = 73.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Lorem Ipsum :"
 label_settings = SubResource("LabelSettings_3w0yy")
 vertical_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -27.0
+offset_right = -2.0
+grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxFlat_chmlc")
+max_value = 50.0
+value = 50.0
+rounded = true
+
+[connection signal="stamina_bar" from="Player" to="CanvasLayer/Panel" method="_on_player_stamina_bar"]

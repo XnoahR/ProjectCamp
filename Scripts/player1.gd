@@ -5,6 +5,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var verticalMovement = 0;
 var MAX_STAMINA := 50.0
 
+signal stamina_bar(value)
 
 @export var mouseSensitivity := 0.1
 @export var speed := 5.0
@@ -14,6 +15,7 @@ var MAX_STAMINA := 50.0
 @onready var canMove := true
 @onready var isCrouch := false
 @onready var isSprint := false
+@onready var isExhausted := false
 @onready var cam = $Camera3D
 
 func _ready():
@@ -26,13 +28,18 @@ func _unhandled_input(event):
 		rotate_y(mouseX*0.01*mouseSensitivity)
 		cam.rotate_x(mouseY*0.01*mouseSensitivity)
 		cam.rotation.x = clamp(cam.rotation.x,deg_to_rad(-60),deg_to_rad(60))
-		
+
+func _process(delta):
+	emit_signal("stamina_bar",stamina)
+
 func _physics_process(delta):
 	#Movement Input
 	if canMove:
 		movement.x = Input.get_axis("right","left")
 		movement.z = Input.get_axis("backward","forward")
 	
+	if(Input.is_key_pressed(KEY_X)):
+		_start_exhausted_cooldown()
 	#Movement
 	movement = (movement.x * transform.basis.x) + (movement.y * transform.basis.y) + (movement.z * transform.basis.z)
 	movement = movement.normalized()
@@ -46,7 +53,8 @@ func _physics_process(delta):
 	
 	#Read Velocity
 	velocity.y = verticalMovement
-	print(velocity)
+	print(stamina)
+	#print(velocity)
 	
 	#Animation and Moving
 	_animation()
@@ -78,10 +86,14 @@ func _sprint(delta): #Sprint default hanya nambah speed
 	if Input.is_action_pressed("sprint") and stamina > 0 and !isCrouch:
 		speed = 10
 		stamina -= 20*delta
-		
+		if(stamina <= 0) :
+			isExhausted = true
+			#wait 3 sec, then isExhausted = false
+			_start_exhausted_cooldown()
+			pass
 		
 	else:
-		if(stamina < MAX_STAMINA):
+		if(stamina < MAX_STAMINA) and !isExhausted:
 			stamina += 10*delta
 		if(stamina > MAX_STAMINA):
 			stamina = MAX_STAMINA
@@ -104,3 +116,9 @@ func _animation():
 
 func _default_speed(): #Set default speed
 	speed = 5
+
+func _start_exhausted_cooldown() -> void:
+	await get_tree().create_timer(3.0).timeout
+	isExhausted = false
+	print("Dah")
+	pass
