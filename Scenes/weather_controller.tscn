@@ -1,0 +1,69 @@
+[gd_scene load_steps=10 format=3 uid="uid://csmc7y632msex"]
+
+[ext_resource type="PackedScene" uid="uid://dcr8ks1qqwwkc" path="res://Scenes/player.tscn" id="1_0xddc"]
+[ext_resource type="Script" path="res://Scripts/hujanProbability.gd" id="1_2q1hk"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_m5h14"]
+emission_shape = 3
+emission_box_extents = Vector3(25, 1, 25)
+direction = Vector3(0.5, -1, 0)
+spread = 0.0
+initial_velocity_min = 17.0
+initial_velocity_max = 17.0
+collision_mode = 1
+collision_friction = 0.0
+collision_bounce = 0.0
+
+[sub_resource type="Curve" id="Curve_826k5"]
+max_value = 0.1
+_data = [Vector2(0.217647, 0.0318681), 0.0, 0.0, 0, 0, Vector2(0.623529, 0.1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kqidy"]
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.65098, 1, 0.952941, 1)
+use_particle_trails = true
+
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_xh3o4"]
+material = SubResource("StandardMaterial3D_kqidy")
+curve = SubResource("Curve_826k5")
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_p4vs2"]
+sky_top_color = Color(0.0980392, 0.572549, 0.839216, 1)
+sky_horizon_color = Color(0.756863, 0.764706, 0.776471, 1)
+sky_curve = 0.077645
+ground_bottom_color = Color(0.113725, 0.235294, 0.164706, 1)
+ground_horizon_color = Color(0.47451, 0.627451, 0.701961, 1)
+
+[sub_resource type="Sky" id="Sky_cp6ab"]
+sky_material = SubResource("ProceduralSkyMaterial_p4vs2")
+
+[sub_resource type="Environment" id="Environment_s2elv"]
+background_mode = 2
+sky = SubResource("Sky_cp6ab")
+fog_density = 0.1
+
+[node name="WeatherController" type="Area3D"]
+script = ExtResource("1_2q1hk")
+
+[node name="RainParticles" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 26.8875, 0)
+emitting = false
+amount = 200
+lifetime = 2.0
+randomness = 0.57
+visibility_aabb = AABB(-25, -27, -25, 50, 50, 50)
+trail_enabled = true
+process_material = SubResource("ParticleProcessMaterial_m5h14")
+draw_pass_1 = SubResource("RibbonTrailMesh_xh3o4")
+
+[node name="Player" parent="." instance=ExtResource("1_0xddc")]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_s2elv")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4.04164, 0.128013)
+spot_range = 4.25374
