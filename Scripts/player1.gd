@@ -67,7 +67,7 @@ func _physics_process(delta):
 	#print(velocity)
 	tbob += delta*velocity.length()*float(is_on_floor())
 	print(tbob)
-	#cam.transform.origin = _headbob(tbob)
+	cam.transform.origin = _headbob(tbob)
 	#Animation and Moving
 	_animation()
 	move_and_slide()
