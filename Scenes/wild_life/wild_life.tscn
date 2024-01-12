@@ -33,6 +33,7 @@ size = Vector3(125, 0.1, 125)
 environment = SubResource("Environment_ltgix")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_mask = 17
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
 material_override = SubResource("StandardMaterial3D_6lsa7")
@@ -46,7 +47,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.82474, 0.0500002, 0.813442
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.35649, 14.4662, 0)
-light_color = Color(1, 0.980392, 0.639216, 1)
+light_color = Color(0.556863, 0.52549, 0, 1)
 light_energy = 2.71
 omni_range = 109.826
 omni_attenuation = 0.176777

@@ -1,12 +1,12 @@
 class_name mobMaster
-extends Node
+extends CharacterBody3D
 
 var health
 var speed
 var attack
 
-var state
-enum {ROAM, IDLE, REACT, RUN}
+var currentMainState
+enum mainState {ROAM, IDLE, REACT, RUN}
 
 
 func _roam():
