@@ -1,38 +1,41 @@
 extends mobMaster
 class_name wildAnimal
 
-
 enum idleState {WATCH,
 EAT,CHILL,
 DRINK}
 
+var movement
 var isIdling
 var isChased = false
-var isRoaming = false
-#var isAware = false
+var isRoaming = true
 var isRunning = false
 var isCooldown = false
+var isRotationCooldown = false
+
 
 @export var intervalIdleState : float = 5.0
 
+@onready var panicMeter : float = 0
+@onready var rotationCooldown = $rotationCooldown
+@onready var roamingCooldown = $roamingCooldown
 @onready var escapeArea = $Escape/CollisionShape3D
 @onready var currentIdleState = idleState.WATCH
 
+signal _show_info(currentMainState, currentIdleState,panicMeter)
+
 func _ready():
-	currentMainState = mainState.IDLE
+	currentMainState = mainState.ROAM
+	rotationCooldown.connect("timeout",_on_rotation_timeout)
+	roamingCooldown.connect("timeout",_on_roaming_timeout)
+
+func _process(delta):
+	emit_signal("_show_info",currentMainState,currentIdleState,panicMeter)
 
 func _physics_process(delta):
 	_current_behaviour(delta)
 	print(currentMainState)
-	#_react()
-	
 	move_and_slide()
-	pass
-
-func _input(event):
-	if(event.is_action_pressed("ui_cancel")):
-		_roam()
-
 
 func _current_behaviour(delta) -> void:
 	match currentMainState:
@@ -41,17 +44,26 @@ func _current_behaviour(delta) -> void:
 		mainState.ROAM:
 			_roaming()
 		mainState.RUN:
-			_running()
-
+			_running(delta)
 
 func _roaming():
 	if !isRunning:
+		if !isRotationCooldown:
+			isRotationCooldown = true
+			var randomRotation = randf_range(0,360)
+			rotate_y(randomRotation)
+			rotationCooldown.wait_time = 6.0
+			rotationCooldown.one_shot = true
+			rotationCooldown.start()
+		movement = transform.basis.z * 1
 		print("Wild Roaming")
-		velocity.z += 0.01
-		await get_tree().create_timer(6.0).timeout
-		velocity.z = 0
-		currentMainState = mainState.IDLE
-	
+		velocity = movement * 2
+		if isRoaming:
+			isRoaming = false
+			roamingCooldown.wait_time = 6.0
+			roamingCooldown.one_shot = true
+			roamingCooldown.start()
+			
 
 func _idling(delta) -> void:
 	escapeArea.disabled = true
@@ -62,65 +74,56 @@ func _idling(delta) -> void:
 		isCooldown = false
 		_state_randomize()
 	if(!isRunning) && currentMainState == mainState.IDLE:
-		match currentIdleState:
-				idleState.WATCH:
-					print("I am watching")
-					rotate_y(1*delta)
-				idleState.EAT:
-					print("Eat the grass")
-					rotate_y(-1*delta)
-				idleState.CHILL:
-					print("So calming")
-				#rotate_z(1*delta)
+		_current_idle_state(delta)
 	if isRunning:
 		currentMainState = mainState.RUN
-		
-func _running():
+
+func _current_idle_state(delta):
+	match currentIdleState:
+		idleState.WATCH:
+			print("I am watching")
+			rotate_y(1*delta)
+		idleState.EAT:
+			print("Eat the grass")
+			rotate_y(-1*delta)
+		idleState.CHILL:
+			print("So calming")
+
+func _running(delta):
 	isRunning = true
-	#isChased = true
+	movement = (transform.basis.z * 1)
+	velocity = movement * 2
 	if isChased:
-		print("RUNNN!")
+		panicMeter += 20 * delta
+		panicMeter = min(panicMeter,100)
 		escapeArea.disabled = false
 	else:
 		print("Am i Chased?")
-
-
+		panicMeter -= 15 * delta
+		panicMeter = max(0,panicMeter)
+		if(panicMeter <= 0):
+			print("back to idle")
+			_back_to_idle()
+	print(panicMeter)
+	
 func _on_area_3d_body_entered(body):
 	print("detected")
 	currentMainState = mainState.RUN
 	isChased = true
 	pass 
 
-
-#func _on_area_3d_body_exited(body):
-	#await get_tree().create_timer(3.0).timeout
-	#isChased = false
-	#pass # Replace with function body.
-	
 func _on_escape_body_exited(body):
-	if(isChased): #masih lari
-		isChased = false
-		#call_deferred("_disable_escape_area")
-		await get_tree().create_timer(3.0).timeout
-		#call_deferred("_enable_escape_area")
-		call_deferred("_resume_escape_area")
+	isChased = false
 
-func _resume_escape_area():
-	if(!isChased):
-		currentMainState = mainState.IDLE
-		isRunning = false
-		print("STOP")
-
-func _disable_escape_area():
-	escapeArea.disabled = true
-	
-func _enable_escape_area():
-	escapeArea.disabled = false
+func _back_to_idle():
+	velocity = Vector3.ZERO
+	isRunning = false
+	currentMainState = mainState.IDLE
+	print("STOP")
 
 func _on_escape_body_entered(body):
 	isChased = true
 	print("Still Chased")
-	pass # Replace with function body.
 	
 func _sub_state_randomize():
 	var probability : int = 0
@@ -131,7 +134,7 @@ func _sub_state_randomize():
 		currentIdleState = idleState.WATCH
 	else:
 		currentIdleState = idleState.EAT
-	
+
 func _state_randomize():
 	var probability : int = 0
 	probability = randi_range(0,11)
@@ -140,9 +143,19 @@ func _state_randomize():
 	else:
 		currentMainState = mainState.ROAM
 
-
 func _on_danger_zone_body_entered(body):
 	print("detected")
 	currentMainState = mainState.RUN
 	isChased = true
-	pass # Replace with function body.
+
+func _on_rotation_timeout():
+	if isRotationCooldown:
+		isRotationCooldown = false
+
+func _on_roaming_timeout():
+	if(!isRunning):
+		print("Roamer")
+		velocity = Vector3.ZERO
+		currentMainState = mainState.IDLE
+		isRoaming = true
+

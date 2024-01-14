@@ -6,7 +6,7 @@ var speed
 var attack
 
 var currentMainState
-enum mainState {ROAM, IDLE, REACT, RUN}
+enum mainState {ROAM, IDLE, RUN}
 
 
 func _roam():

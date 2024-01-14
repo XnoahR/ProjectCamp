@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://c30gs3vxacjxo"]
+[gd_scene load_steps=11 format=3 uid="uid://c30gs3vxacjxo"]
 
 [ext_resource type="Texture2D" uid="uid://blylbbabi4p07" path="res://Assets/GridBox/Vector/texture_02.svg" id="1_ngt68"]
 [ext_resource type="PackedScene" uid="uid://bs8ft2tcue3ok" path="res://Scenes/ray_folder/player1.tscn" id="2_wbhvg"]
 [ext_resource type="PackedScene" uid="uid://chybeyd6bjxbj" path="res://Scenes/wild_life/deer.tscn" id="3_ijs22"]
+[ext_resource type="Script" path="res://Scenes/wild_life/Panel.gd" id="4_mybr4"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_w0o3m"]
 sky_horizon_color = Color(0.64527, 0.654676, 0.669853, 1)
@@ -55,3 +56,41 @@ omni_shadow_mode = 0
 
 [node name="Deer" parent="." instance=ExtResource("3_ijs22")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.58147, 0.723677, 3.50589)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+offset_right = 431.0
+offset_bottom = 208.0
+script = ExtResource("4_mybr4")
+
+[node name="Current Main" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.002
+anchor_bottom = 0.183
+offset_right = 0.13797
+offset_bottom = -8.064
+text = "Main State:"
+
+[node name="Current Idle" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.002
+anchor_bottom = 0.183
+offset_top = 29.0
+offset_right = 0.13797
+offset_bottom = 20.936
+text = "Idle subState : "
+
+[node name="Current Panic Meter" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.002
+anchor_bottom = 0.183
+offset_top = 56.0
+offset_right = 0.13797
+offset_bottom = 47.936
+text = "Idle subState : "
+
+[connection signal="_show_info" from="Deer" to="CanvasLayer/Panel" method="_on_deer__show_info"]
