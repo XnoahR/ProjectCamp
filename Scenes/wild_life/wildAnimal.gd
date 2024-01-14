@@ -13,7 +13,6 @@ var isRunning = false
 var isCooldown = false
 var isRotationCooldown = false
 
-
 @export var intervalIdleState : float = 5.0
 
 @onready var panicMeter : float = 0
@@ -46,7 +45,7 @@ func _current_behaviour(delta) -> void:
 		mainState.RUN:
 			_running(delta)
 
-func _roaming():
+func _roaming() -> void:
 	if !isRunning:
 		if !isRotationCooldown:
 			isRotationCooldown = true
@@ -63,7 +62,6 @@ func _roaming():
 			roamingCooldown.wait_time = 6.0
 			roamingCooldown.one_shot = true
 			roamingCooldown.start()
-			
 
 func _idling(delta) -> void:
 	escapeArea.disabled = true
@@ -78,7 +76,7 @@ func _idling(delta) -> void:
 	if isRunning:
 		currentMainState = mainState.RUN
 
-func _current_idle_state(delta):
+func _current_idle_state(delta) -> void:
 	match currentIdleState:
 		idleState.WATCH:
 			print("I am watching")
@@ -89,7 +87,7 @@ func _current_idle_state(delta):
 		idleState.CHILL:
 			print("So calming")
 
-func _running(delta):
+func _running(delta) -> void:
 	isRunning = true
 	movement = (transform.basis.z * 1)
 	velocity = movement * 2
@@ -106,26 +104,13 @@ func _running(delta):
 			_back_to_idle()
 	print(panicMeter)
 	
-func _on_area_3d_body_entered(body):
-	print("detected")
-	currentMainState = mainState.RUN
-	isChased = true
-	pass 
-
-func _on_escape_body_exited(body):
-	isChased = false
-
-func _back_to_idle():
+func _back_to_idle() -> void:
 	velocity = Vector3.ZERO
 	isRunning = false
 	currentMainState = mainState.IDLE
 	print("STOP")
-
-func _on_escape_body_entered(body):
-	isChased = true
-	print("Still Chased")
 	
-func _sub_state_randomize():
+func _sub_state_randomize() -> void:
 	var probability : int = 0
 	probability = randi_range(0,11)
 	if(probability <= 4):
@@ -135,7 +120,7 @@ func _sub_state_randomize():
 	else:
 		currentIdleState = idleState.EAT
 
-func _state_randomize():
+func _state_randomize() -> void:
 	var probability : int = 0
 	probability = randi_range(0,11)
 	if(probability <= 7):
@@ -143,19 +128,34 @@ func _state_randomize():
 	else:
 		currentMainState = mainState.ROAM
 
-func _on_danger_zone_body_entered(body):
-	print("detected")
-	currentMainState = mainState.RUN
-	isChased = true
-
-func _on_rotation_timeout():
+func _on_rotation_timeout() -> void:
 	if isRotationCooldown:
 		isRotationCooldown = false
 
-func _on_roaming_timeout():
+func _on_roaming_timeout() -> void:
 	if(!isRunning):
 		print("Roamer")
 		velocity = Vector3.ZERO
 		currentMainState = mainState.IDLE
 		isRoaming = true
+
+func _on_area_3d_body_entered(body):
+	print("detected")
+	currentMainState = mainState.RUN
+	isChased = true
+	pass 
+
+func _on_escape_body_exited(body):
+	isChased = false
+
+func _on_escape_body_entered(body):
+	isChased = true
+	print("Still Chased")
+
+func _on_danger_zone_body_entered(body):
+	print("detected")
+	currentMainState = mainState.RUN
+	isChased = true
+
+
 

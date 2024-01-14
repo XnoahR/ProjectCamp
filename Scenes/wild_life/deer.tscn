@@ -31,7 +31,7 @@ shape = SubResource("CapsuleShape3D_bmwpq")
 collision_mask = 16
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Vision"]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 3.03679, 9.05206)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 1.98412, 9.05206)
 shape = SubResource("BoxShape3D_rxkn0")
 
 [node name="Escape" type="Area3D" parent="."]
