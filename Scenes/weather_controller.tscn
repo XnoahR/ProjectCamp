@@ -1,19 +1,18 @@
-[gd_scene load_steps=15 format=3 uid="uid://csmc7y632msex"]
+[gd_scene load_steps=14 format=3 uid="uid://csmc7y632msex"]
 
-[ext_resource type="PackedScene" uid="uid://dcr8ks1qqwwkc" path="res://Scenes/player.tscn" id="1_0xddc"]
 [ext_resource type="Script" path="res://Scripts/hujanProbability.gd" id="1_2q1hk"]
-[ext_resource type="Shader" path="res://Shaders/clouds.gdshader" id="3_cqepn"]
-[ext_resource type="CompressedTexture3D" uid="uid://cxmo82mfrogtv" path="res://Shaders/perlworlnoise.tga" id="4_v4dvt"]
-[ext_resource type="Texture2D" uid="uid://bb1fmyvpxwoxa" path="res://Shaders/weather.bmp" id="5_erb4m"]
-[ext_resource type="CompressedTexture3D" uid="uid://75hwc5bxf74" path="res://Shaders/worlnoise.bmp" id="6_8lgy1"]
+[ext_resource type="Shader" path="res://Assets/Shaders/clouds.gdshader" id="3_cqepn"]
+[ext_resource type="CompressedTexture3D" uid="uid://cxmo82mfrogtv" path="res://Assets/Shaders/perlworlnoise.tga" id="4_v4dvt"]
+[ext_resource type="Texture2D" uid="uid://bb1fmyvpxwoxa" path="res://Assets/Shaders/weather.bmp" id="5_erb4m"]
+[ext_resource type="CompressedTexture3D" uid="uid://75hwc5bxf74" path="res://Assets/Shaders/worlnoise.bmp" id="6_8lgy1"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_m5h14"]
 emission_shape = 3
 emission_box_extents = Vector3(25, 1, 25)
-direction = Vector3(0.5, -1, 0)
-spread = 0.0
-initial_velocity_min = 17.0
-initial_velocity_max = 17.0
+direction = Vector3(0, -1, 0)
+spread = 4.0
+initial_velocity_min = 15.0
+initial_velocity_max = 20.0
 collision_mode = 1
 collision_friction = 0.0
 collision_bounce = 0.0
@@ -28,28 +27,29 @@ transparency = 1
 cull_mode = 2
 shading_mode = 0
 vertex_color_use_as_albedo = true
-albedo_color = Color(0.682353, 0.972549, 1, 0.184314)
+albedo_color = Color(0.556863, 0.964706, 1, 0.0784314)
 use_particle_trails = true
 
 [sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_xh3o4"]
 material = SubResource("StandardMaterial3D_kqidy")
-size = 0.2
+size = 0.805
 sections = 2
-section_length = 0.1
+section_length = 0.001
+section_segments = 2
 curve = SubResource("Curve_826k5")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0ybx2"]
 shader = ExtResource("3_cqepn")
 shader_parameter/wind_direction = Vector2(1, 0)
 shader_parameter/wind_speed = 1.0
-shader_parameter/_density = 0.045
-shader_parameter/cloud_coverage = 0.1
+shader_parameter/_density = 0.01
+shader_parameter/cloud_coverage = 0.154
 shader_parameter/_time_offset = 0.0
 shader_parameter/rayleigh = 2.0
 shader_parameter/rayleigh_color = Color(0.26, 0.41, 0.58, 1)
 shader_parameter/mie = 0.01
-shader_parameter/mie_eccentricity = 0.91
-shader_parameter/mie_color = Color(0.694118, 0.811765, 0.937255, 1)
+shader_parameter/mie_eccentricity = 0.99
+shader_parameter/mie_color = Color(0.752941, 0.760784, 0.690196, 1)
 shader_parameter/turbidity = 10.0
 shader_parameter/sun_disk_scale = 1.0
 shader_parameter/ground_color = Color(0.521569, 0.831373, 0.94902, 1)
@@ -65,6 +65,8 @@ sky_material = SubResource("ShaderMaterial_0ybx2")
 background_mode = 2
 sky = SubResource("Sky_cp6ab")
 fog_density = 0.1
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_xjip4"]
 
@@ -73,7 +75,7 @@ script = ExtResource("1_2q1hk")
 
 [node name="RainParticles" type="GPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 26.8875, 0)
-amount = 1200
+amount = 500
 lifetime = 2.0
 randomness = 0.57
 visibility_aabb = AABB(-25, -27, -25, 50, 50, 50)
@@ -82,8 +84,6 @@ trail_lifetime = 0.5
 process_material = SubResource("ParticleProcessMaterial_m5h14")
 draw_pass_1 = SubResource("RibbonTrailMesh_xh3o4")
 
-[node name="Player" parent="." instance=ExtResource("1_0xddc")]
-
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_s2elv")
 
@@ -91,7 +91,8 @@ environment = SubResource("Environment_s2elv")
 one_shot = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -0.0715671, 0.997436, 0, -0.997436, -0.0715671, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.924246, 0.381797, 0, -0.381797, 0.924246, 0, 0, 0)
+shadow_enabled = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_xjip4")
