@@ -6,7 +6,7 @@ var defaultValueCloud := 40
 var numberGen : int
 var weather : String
 var weatherTime : Array = ["Sunny","Cloudy","Rainy"]
-var interval := 120.0#(16.0 * 60) #120.0 #Time between morning, day, night
+var interval := 15.0#(16.0 * 60) #120.0 #Time between morning, day, night
 var sunnyVolume : float
 var cloudyVolume := 0.15
 var cloudSize : float
@@ -25,42 +25,22 @@ signal weather_cycled
 @onready var valueCloud := 40
 @onready var rainParticle := $RainParticles
 @onready var worldEnvironment := $WorldEnvironment
+@onready var environment = worldEnvironment.environment
 @onready var timer := $Timer
-@onready var skyMaterial = worldEnvironment.environment.sky.sky_material
+@onready var sun := $DirectionalLight3D
+@onready var skyMaterial = environment.sky.sky_material
 
-func _ready():
+func _ready() -> void:
 	connect("weather_picked", self._weather_cycle)
 	connect("weather_cycled", self._weather_system)
 	#_weather_system()
 	_weather_cycle()
 
-func _process(delta):
-	if(Input.is_action_just_pressed("crouch")):
-		timer.start(0.1)
-	
-	rainParticle.emitting = (weather == "Rainy") #Pour rain particle IF the weather is Rainy
-	targetCloudDensity = 0.1 if (weather == "Rainy") else 0.07
-	set_cloud_density(targetCloudDensity)
-	
-	worldEnvironment.environment.volumetric_fog_density = fogDensity
-	if !isFogging and fogDensity <= 0:
-		pass
-	elif isFogging and weather != "Rainy":
-		if timer.time_left >= interval/1.5:
-			fogDensity = _adjust_value(fogDensity, 0.2, interval/3, (0.2-currentFogSize), delta)
-		else:
-			currentFogSize = get_fog_density()
-			isFogging = false
-	else:
-		fogDensity = _adjust_value(fogDensity, 0, interval/1.75, currentFogSize, delta)
-	
-	match weather:
-		"Rainy":
-			_rainy(delta)
-		"Sunny":
-			_sunny(delta)
-		"Cloudy":
-			_cloudy(delta)
+func _process(delta) -> void:
+	#if(Input.is_action_just_pressed("crouch")):
+		#timer.start(0.1)
+	_decide_weather(delta)
+	_adjust_fog(delta)
 
 func _weather_system():
 	numberGen = 0
@@ -96,6 +76,30 @@ func _weather_cycle():
 	print("weather cycled.")
 	emit_signal("weather_cycled")
 
+func _adjust_fog(delta: float):
+	set_fog_density(fogDensity)
+	if !isFogging and fogDensity <= 0:
+		pass
+	elif isFogging and weather != "Rainy":
+		if timer.time_left > interval/1.5:
+			fogDensity = _adjust_value(fogDensity, 0.2, interval/3, (0.2-currentFogSize), delta)
+		else:
+			currentFogSize = get_fog_density()
+			isFogging = false
+	else:
+		fogDensity = _adjust_value(fogDensity, 0, interval/1.75, currentFogSize, delta)
+
+func _decide_weather(delta: float):
+	_adjust_cloud_density(delta)
+	rainParticle.emitting = (weather == "Rainy") #Pour rain particle IF the weather is Rainy
+	match weather:
+		"Rainy":
+			_rainy(delta)
+		"Sunny":
+			_sunny(delta)
+		"Cloudy":
+			_cloudy(delta)
+
 func _rainy(delta):
 	_adjust_cloud(0.6, interval/20.0, (0.6-currentCloudSize), delta)
 	var fogValueDiff := (0.01-currentFogSize) if 0.01 > currentFogSize else (currentFogSize-0.01)
@@ -113,7 +117,11 @@ func _adjust_cloud(targetSize: float, finishTime: float, valueDiff : float, delt
 	cloudSize = get_cloud_scale()
 	cloudSize = _adjust_value(cloudSize, targetSize, finishTime, valueDiff, delta)
 	set_cloud_scale(cloudSize)
-	
+
+func _adjust_cloud_density(delta: float):
+	targetCloudDensity = 0.1 if (weather == "Rainy") else 0.07
+	set_cloud_density(targetCloudDensity)
+
 func _adjust_value(startSize : float, targetSize : float, finishTime : float, valueDiff : float, delta):
 	if startSize < targetSize: # 20 -> interval / 4 (transition time) / 5 (delay) (4*5)
 		startSize += (valueDiff/finishTime) * delta
@@ -126,7 +134,7 @@ func _adjust_value(startSize : float, targetSize : float, finishTime : float, va
 	else:
 		return startSize
 
-func set_cloud_scale(scale : float):
+func set_cloud_scale(scale : float) -> void:
 	skyMaterial.set("shader_parameter/cloud_coverage", scale)
 
 func get_cloud_scale() -> float:
@@ -135,17 +143,29 @@ func get_cloud_scale() -> float:
 func set_cloud_density(density : float):
 	skyMaterial.set("shader_parameter/_density", density)
 
+func set_fog_density(density : float) -> void:
+	environment.volumetric_fog_density = density
+
 func get_fog_density() -> float:
 	return worldEnvironment.environment.volumetric_fog_density
 	
 func change_weather(weatherName : String):
 	weather = weatherName
-	currentFogSize = get_fog_density()
-	currentCloudSize = get_cloud_scale()
-	targetCloudSize = currentCloudSize + cloudyVolume
-	sunnyVolume = currentCloudSize - 0.01
+	_decide_current_weather()
 	timer.start(interval)
 	print("Changed weather to: "+weather)
+
+func _decide_current_weather():
+	currentFogSize = get_fog_density()
+	currentCloudSize = get_cloud_scale()
+	match weather:
+		"Sunny":
+			sunnyVolume = max((currentCloudSize - 0.01), 0.01)
+		"Cloudy":
+			targetCloudSize = min((currentCloudSize + 0.15), 0.3)
+			cloudyVolume = (targetCloudSize - currentCloudSize) if currentCloudSize < 0.3 else (currentCloudSize - targetCloudSize)
+		"Rainy":
+			pass
 
 func _on_timer_timeout():
 	print("Timer done.")
