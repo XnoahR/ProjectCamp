@@ -8,17 +8,13 @@ var attack
 var currentMainState
 enum mainState {ROAM, IDLE, RUN}
 
+func _current_behaviour(delta):
+	pass
 
-func _roam():
+func _roaming():
 	print("im roaming")
 	pass
 
-func _idle():
+func _idling(delta):
 	pass
 
-func _react():
-	print("Kyaa")
-	pass
-
-func _run():
-	pass

@@ -33,7 +33,6 @@ func _process(delta):
 
 func _physics_process(delta):
 	_current_behaviour(delta)
-	print(currentMainState)
 	move_and_slide()
 
 func _current_behaviour(delta) -> void:
