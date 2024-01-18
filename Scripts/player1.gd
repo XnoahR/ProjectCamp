@@ -1,3 +1,4 @@
+class_name player
 extends CharacterBody3D
 
 var movement := Vector3(0,0,0)
@@ -7,6 +8,8 @@ var tbob = 0.0
 const MAX_STAMINA := 50.0
 const BOB_FREQ  = 2.0
 const BOB_AMP = 0.08
+
+	
 
 signal stamina_bar(value)
 signal player_life(health, hunger, thirst)
@@ -66,8 +69,8 @@ func _physics_process(delta):
 	#print(stamina)
 	#print(velocity)
 	tbob += delta*velocity.length()*float(is_on_floor())
-	print(tbob)
-	#cam.transform.origin = _headbob(tbob)
+	#print(tbob)
+	cam.transform.origin = _headbob(tbob)
 	#Animation and Moving
 	_animation()
 	move_and_slide()
@@ -142,7 +145,7 @@ func _check_life_status():
 	health = PlayerMaster.healthValue
 	hunger = PlayerMaster.hungerValue
 	thirst = PlayerMaster.thirstValue
-	print(thirst)
+	#print(thirst)
 
 func _headbob(time) -> Vector3:
 	var pos = Vector3.ZERO

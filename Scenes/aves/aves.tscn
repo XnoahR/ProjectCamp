@@ -1,0 +1,41 @@
+[gd_scene load_steps=9 format=3 uid="uid://isw5lridstfy"]
+
+[ext_resource type="Texture2D" uid="uid://cus0ykbg50or2" path="res://Assets/GridBox/PNG/Light/texture_07.png" id="1_w1hrl"]
+[ext_resource type="Texture2D" uid="uid://d2y00xulu5gyb" path="res://Assets/GridBox/Vector/texture_01.svg" id="2_0hv1p"]
+[ext_resource type="PackedScene" uid="uid://bchrjo7lh8v78" path="res://Scenes/aves/bird.tscn" id="4_66adf"]
+[ext_resource type="PackedScene" uid="uid://bs8ft2tcue3ok" path="res://Scenes/ray_folder/player1.tscn" id="4_dhcsg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_soqce"]
+albedo_texture = ExtResource("1_w1hrl")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hwnx2"]
+albedo_texture = ExtResource("2_0hv1p")
+uv1_scale = Vector3(2, 2, 2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qofsf"]
+material = SubResource("StandardMaterial3D_hwnx2")
+size = Vector3(100, 0.1, 100)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qahya"]
+size = Vector3(100, 0.1, 100)
+
+[node name="aves" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+material_override = SubResource("StandardMaterial3D_soqce")
+mesh = SubResource("BoxMesh_qofsf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.163081, 0)
+shape = SubResource("BoxShape3D_qahya")
+
+[node name="Bird" parent="." instance=ExtResource("4_66adf")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -1.168, 0.314959, 8.37419)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.994912, 0.100744, 0, -0.100744, 0.994912, 0, 0, 0)
+
+[node name="Player" parent="." instance=ExtResource("4_dhcsg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.32784, 0.213081, -5.4246)

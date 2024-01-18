@@ -1,0 +1,96 @@
+[gd_scene load_steps=11 format=3 uid="uid://c30gs3vxacjxo"]
+
+[ext_resource type="Texture2D" uid="uid://blylbbabi4p07" path="res://Assets/GridBox/Vector/texture_02.svg" id="1_ngt68"]
+[ext_resource type="PackedScene" uid="uid://bs8ft2tcue3ok" path="res://Scenes/ray_folder/player1.tscn" id="2_wbhvg"]
+[ext_resource type="PackedScene" uid="uid://chybeyd6bjxbj" path="res://Scenes/wild_life/deer.tscn" id="3_ijs22"]
+[ext_resource type="Script" path="res://Scenes/wild_life/Panel.gd" id="4_mybr4"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_w0o3m"]
+sky_horizon_color = Color(0.64527, 0.654676, 0.669853, 1)
+sky_energy_multiplier = 0.75
+ground_bottom_color = Color(0.196078, 0.164706, 0.129412, 1)
+ground_horizon_color = Color(0.64527, 0.654676, 0.669853, 1)
+
+[sub_resource type="Sky" id="Sky_fkekc"]
+sky_material = SubResource("ProceduralSkyMaterial_w0o3m")
+
+[sub_resource type="Environment" id="Environment_ltgix"]
+background_mode = 2
+sky = SubResource("Sky_fkekc")
+tonemap_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6lsa7"]
+albedo_texture = ExtResource("1_ngt68")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ijcj5"]
+size = Vector2(125, 125)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e1867"]
+size = Vector3(125, 0.1, 125)
+
+[node name="wild life" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ltgix")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_mask = 17
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+material_override = SubResource("StandardMaterial3D_6lsa7")
+mesh = SubResource("PlaneMesh_ijcj5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("BoxShape3D_e1867")
+
+[node name="Player" parent="." instance=ExtResource("2_wbhvg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.82474, 0.0500002, 0.813442)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.35649, 14.4662, 0)
+light_color = Color(0.556863, 0.52549, 0, 1)
+light_energy = 2.71
+omni_range = 109.826
+omni_attenuation = 0.176777
+omni_shadow_mode = 0
+
+[node name="Deer" parent="." instance=ExtResource("3_ijs22")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.58147, 0.723677, 3.50589)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+offset_right = 431.0
+offset_bottom = 208.0
+script = ExtResource("4_mybr4")
+
+[node name="Current Main" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.002
+anchor_bottom = 0.183
+offset_right = 0.13797
+offset_bottom = -8.064
+text = "Main State:"
+
+[node name="Current Idle" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.002
+anchor_bottom = 0.183
+offset_top = 29.0
+offset_right = 0.13797
+offset_bottom = 20.936
+text = "Idle subState : "
+
+[node name="Current Panic Meter" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.002
+anchor_bottom = 0.183
+offset_top = 56.0
+offset_right = 0.13797
+offset_bottom = 47.936
+text = "Idle subState : "
+
+[connection signal="_show_info" from="Deer" to="CanvasLayer/Panel" method="_on_deer__show_info"]
