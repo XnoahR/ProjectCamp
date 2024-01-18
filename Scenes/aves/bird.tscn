@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://bchrjo7lh8v78"]
+[gd_scene load_steps=5 format=3 uid="uid://bchrjo7lh8v78"]
 
 [ext_resource type="Script" path="res://Scenes/aves/bird.gd" id="1_empyr"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_42ew4"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5e303"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_x5im8"]
 
 [node name="Bird" type="CharacterBody3D"]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
@@ -18,3 +20,12 @@ shape = SubResource("CapsuleShape3D_5e303")
 
 [node name="RoamTimer" type="Timer" parent="."]
 one_shot = true
+
+[node name="DangerZone" type="Area3D" parent="."]
+collision_mask = 16
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DangerZone"]
+transform = Transform3D(45, 0, 0, 0, 45, 0, 0, 0, 45, 0, 0, 0)
+shape = SubResource("SphereShape3D_x5im8")
+
+[connection signal="body_entered" from="DangerZone" to="." method="_on_danger_zone_body_entered"]
