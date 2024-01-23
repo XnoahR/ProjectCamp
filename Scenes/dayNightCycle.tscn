@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://dax7bdnhkhf1u"]
+
+[ext_resource type="Script" path="res://Scripts/dayNightCycle.gd" id="1_370n1"]
+[ext_resource type="Script" path="res://Scripts/lightNode.gd" id="2_47dmw"]
+
+[sub_resource type="Curve" id="Curve_ougyd"]
+_data = [Vector2(0.247525, 0), 0.0, 10.0, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(0.75, 0), -10.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_2wg5j"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.25, 0), 0.0, 0.0, 0, 0, Vector2(0.75, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="Curve" id="Curve_w0cir"]
+_data = [Vector2(0.25, 0), 0.0, 10.0, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(0.75, 0), -10.0, 10.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_6u5ol"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.25, 0), 0.0, 0.0, 0, 0, Vector2(0.75, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[node name="DayNightCycle" type="Node3D"]
+script = ExtResource("1_370n1")
+sunEnergy = SubResource("Curve_ougyd")
+moonEnergy = SubResource("Curve_2wg5j")
+
+[node name="LightNode" type="Node3D" parent="."]
+script = ExtResource("2_47dmw")
+sunEnergy = SubResource("Curve_w0cir")
+moonEnergy = SubResource("Curve_6u5ol")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="LightNode"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Moon" type="DirectionalLight3D" parent="LightNode"]
+transform = Transform3D(1, 0, 0, 0, -1, 1.49012e-07, 0, -1.49012e-07, -1, 0, 0, 0)
+light_color = Color(0.278431, 0.282353, 0.376471, 1)

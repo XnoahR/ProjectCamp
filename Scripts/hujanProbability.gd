@@ -6,7 +6,7 @@ var defaultValueCloud := 40
 var numberGen : int
 var weather : String
 var weatherTime : Array = ["Sunny","Cloudy","Rainy"]
-var interval := 15.0#(16.0 * 60) #120.0 #Time between morning, day, night
+var interval : float = 5.0 #(16.0 * 60) #120.0 #Time between morning, day, night
 var sunnyVolume : float
 var cloudyVolume := 0.15
 var cloudSize : float
@@ -27,7 +27,7 @@ signal weather_cycled
 @onready var worldEnvironment := $WorldEnvironment
 @onready var environment = worldEnvironment.environment
 @onready var timer := $Timer
-@onready var sun := $DirectionalLight3D
+#@onready var lightNode := $DayNightCycle
 @onready var skyMaterial = environment.sky.sky_material
 
 func _ready() -> void:
@@ -35,6 +35,7 @@ func _ready() -> void:
 	connect("weather_cycled", self._weather_system)
 	#_weather_system()
 	_weather_cycle()
+	#interval = lightNode.dayLength/3.0
 
 func _process(delta) -> void:
 	#if(Input.is_action_just_pressed("crouch")):
@@ -87,11 +88,11 @@ func _adjust_fog(delta: float):
 			currentFogSize = get_fog_density()
 			isFogging = false
 	else:
-		fogDensity = _adjust_value(fogDensity, 0, interval/1.75, currentFogSize, delta)
+		fogDensity = _adjust_value(fogDensity, 0, interval/2, currentFogSize, delta)
 
 func _decide_weather(delta: float):
 	_adjust_cloud_density(delta)
-	rainParticle.emitting = (weather == "Rainy") #Pour rain particle IF the weather is Rainy
+	rainParticle.emitting = (weather == "Rainy" and cloudSize >= 0.6) #Pour rain particle IF the weather is Rainy
 	match weather:
 		"Rainy":
 			_rainy(delta)

@@ -24,16 +24,20 @@ uniform float mie : hint_range(0, 1) = 0.005;
 uniform float mie_eccentricity : hint_range(-1, 1) = 0.8;
 uniform vec4 mie_color : source_color = vec4(0.63, 0.77, 0.92, 1.0);
 
+uniform vec3 night_sky : source_color = vec3(0.07, 0.0, 0.90);
+
 uniform float turbidity : hint_range(0, 1000) = 10.0;
 uniform float sun_disk_scale : hint_range(0, 360) = 1.0;
 uniform vec4 ground_color : source_color = vec4(1.0);
 uniform float exposure : hint_range(0, 128) = 0.1;
 
 const vec3 UP = vec3( 0.0, 1.0, 0.0 );
+const vec3 DOWN = vec3( 0.0, -1.0, 0.0 );
 
 // Sun constants
 const float SOL_SIZE = 0.00872663806;
 const float SUN_ENERGY = 1000.0;
+const float MOON_ENERGY = 15.0;
 
 // optical length at zenith for molecules
 const float rayleigh_zenith_size = 8.4e3;
@@ -62,10 +66,16 @@ vec3 atmosphere(vec3 eye_dir) {
 	float zenith_angle = clamp( dot(UP, normalize(LIGHT0_DIRECTION)), -1.0, 1.0 );
 	float sun_energy = max(0.0, 1.0 - exp(-((PI * 0.5) - acos(zenith_angle)))) * SUN_ENERGY * LIGHT0_ENERGY;
 	float sun_fade = 1.0 - clamp(1.0 - exp(LIGHT0_DIRECTION.y), 0.0, 1.0);
+	
+	float moon_angle = clamp( dot(UP, normalize(LIGHT1_DIRECTION)), -1.0, 1.0 );
+	float moon_energy = max(0.0, 1.0 - exp(-((PI * 0.5) - acos(moon_angle)))) * MOON_ENERGY * LIGHT1_ENERGY;
+	float moon_fade = 1.0 - clamp(1.0 - exp(LIGHT1_DIRECTION.y), 0.0, 1.0);
 
 	// Rayleigh coefficients.
-	float rayleigh_coefficient = rayleigh - ( 1.0 * ( 1.0 - sun_fade ) );
+	float rayleigh_coefficient = rayleigh - ( 1.0 * ( 1.0 - sun_fade) );
+	float rayleigh_coefficient2 = rayleigh - ( 1.0 * ( 1.0 - moon_fade) );
 	vec3 rayleigh_beta = rayleigh_coefficient * rayleigh_color.rgb * 0.0001;
+	vec3 rayleigh_beta2 = rayleigh_coefficient2 * rayleigh_color.rgb * 0.0001;
 	// mie coefficients from Preetham
 	vec3 mie_beta = turbidity * mie * mie_color.rgb * 0.000434;
 
@@ -77,31 +87,46 @@ vec3 atmosphere(vec3 eye_dir) {
 
 	// light extinction based on thickness of atmosphere
 	vec3 extinction = exp(-(rayleigh_beta * rayleigh_scatter + mie_beta * mie_scatter));
+	vec3 extinction2 = exp(-(rayleigh_beta2 * rayleigh_scatter + mie_beta * mie_scatter));
 
 	// in scattering
 	float cos_theta = dot(eye_dir, normalize(LIGHT0_DIRECTION));
+	float cos_theta2 = dot(eye_dir, normalize(LIGHT1_DIRECTION));
 
 	float rayleigh_phase = (3.0 / (16.0 * PI)) * (1.0 + pow(cos_theta * 0.5 + 0.5, 2.0));
+	float night_rayleigh_phase = (3.0 / (16.0 * PI)) * (1.0 + pow(cos_theta2 * 0.5 + 0.5, 2.0));
 	vec3 betaRTheta = rayleigh_beta * rayleigh_phase;
+	vec3 betaRTheta2 = rayleigh_beta2 * night_rayleigh_phase;
 
 	float mie_phase = henyey_greenstein(cos_theta, mie_eccentricity);
+	float mie_phase2 = henyey_greenstein(cos_theta2, mie_eccentricity);
 	vec3 betaMTheta = mie_beta * mie_phase;
+	vec3 betaMTheta2 = mie_beta * mie_phase2;
 
 	vec3 Lin = pow(sun_energy * ((betaRTheta + betaMTheta) / (rayleigh_beta + mie_beta)) * (1.0 - extinction), vec3(1.5));
+	vec3 Lin2 = pow(moon_energy * ((betaRTheta2 + betaMTheta2) / (rayleigh_beta2 + mie_beta)) * (1.0 - extinction2), vec3(3.0));
 	// Hack from https://github.com/mrdoob/three.js/blob/master/examples/jsm/objects/Sky.js
 	Lin *= mix(vec3(1.0), pow(sun_energy * ((betaRTheta + betaMTheta) / (rayleigh_beta + mie_beta)) * extinction, vec3(0.5)), clamp(pow(1.0 - zenith_angle, 5.0), 0.0, 1.0));
+	Lin2 *= mix(vec3(1.0), pow(moon_energy * ((betaRTheta2 + betaMTheta2) / (rayleigh_beta2 + mie_beta)) * extinction2, vec3(0.5)), clamp(pow(1.0 - moon_angle, 5.0), 0.0, 1.0));
+	
+	vec3 Linlin = Lin + Lin2;
 
 	// Hack in the ground color
 	Lin  *= mix(ground_color.rgb, vec3(1.0), smoothstep(-0.1, 0.1, dot(UP, eye_dir)));
+	Lin2  *= mix(ground_color.rgb, vec3(1.0), smoothstep(-0.1, 0.1, dot(UP, eye_dir)));
+	Linlin  *= mix(ground_color.rgb, vec3(1.0), smoothstep(-0.1, 0.1, dot(UP, eye_dir)));
 
 	// Solar disk and out-scattering
 	float sunAngularDiameterCos = cos(SOL_SIZE * sun_disk_scale);
 	float sunAngularDiameterCos2 = cos(SOL_SIZE * sun_disk_scale*0.5);
 	float sundisk = smoothstep(sunAngularDiameterCos, sunAngularDiameterCos2, cos_theta);
+	float moondisk = smoothstep(sunAngularDiameterCos, sunAngularDiameterCos2, cos_theta2);
 	vec3 L0 = (sun_energy * 1900.0 * extinction) * sundisk * LIGHT0_COLOR;
+	//L0 += (moon_energy * extinction2) * (LIGHT1_COLOR + vec3(0.07, 0.0, 0.90));
+	L0 += (extinction2) * (LIGHT1_COLOR + night_sky);
 	// Note: Add nightime here: L0 += night_sky * extinction
 
-	vec3 color = (Lin + L0) * 0.04;
+	vec3 color = (Linlin + L0) * 0.04;
 	color = pow(color, vec3(1.0 / (1.2 + (1.2 * sun_fade))));
 	color *= exposure;
 	return color;
@@ -170,15 +195,19 @@ vec4 march(vec3 pos,  vec3 end, vec3 dir, int depth) {
 	const float t_dist = sky_t_radius-sky_b_radius;
 	float lss = (t_dist / 36.0);
 	vec3 ldir = normalize(LIGHT0_DIRECTION);
+	vec3 ldir2 = normalize(LIGHT1_DIRECTION);
 	vec3 L = vec3(0.0);
 	int count=0;
 	float t = 1.0;
 	float costheta = dot(ldir, dir);
+	float costheta2 = dot(ldir2, dir);
 	// Stack multiple phase functions to emulate some backscattering
 	float phase = max(max(henyey_greenstein(costheta, 0.6), henyey_greenstein(costheta, (0.4 - 1.4 * ldir.y))), henyey_greenstein(costheta, -0.2));
+	float phase2 = max(max(henyey_greenstein(costheta2, 0.6), henyey_greenstein(costheta2, (0.4 - 1.4 * ldir.y))), henyey_greenstein(costheta2, -0.2));
 	// Precalculate sun and ambient colors
 	// This should really come from a uniform or texture for performance reasons
 	vec3 atmosphere_sun = atmosphere(LIGHT0_DIRECTION) * LIGHT0_ENERGY * ss * 0.1;
+	vec3 atmosphere_moon = atmosphere(LIGHT1_DIRECTION) * LIGHT1_ENERGY * ss * 0.05;
 	vec3 atmosphere_ambient = atmosphere(normalize(vec3(1.0, 1.0, 0.0)));
 	vec3 atmosphere_ground = atmosphere(normalize(vec3(1.0, -1.0, 0.0)));
 	
@@ -222,7 +251,7 @@ vec4 march(vec3 pos,  vec3 end, vec3 dir, int depth) {
 
 			vec3 ambient = mix(atmosphere_ground, vec3(1.0), smoothstep(0.0, 1.0, height_fraction)) * _density * mix(atmosphere_ambient, vec3(1.0), 0.4) * (LIGHT0_DIRECTION.y);
 			alpha += (1.0 - dt) * (1.0 - alpha);
-			L += (ambient + beers_total * atmosphere_sun * phase * alpha) * T * t;
+			L += (ambient + beers_total * (atmosphere_sun + atmosphere_moon) * (phase + phase2) * (alpha/2.0)) * T * t;
 		}
 	}
 	return clamp(vec4(L, alpha), 0.0, 1.0);
